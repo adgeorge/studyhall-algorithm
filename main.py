@@ -221,7 +221,9 @@ def main():
                         study_group1.conflicting_study_group_list.append(Conflict(study_group2, conflicting_students))
                         study_group2.conflicting_study_group_list.append(Conflict(study_group1, conflicting_students))
                         study_group1.total_number_of_conflicts = study_group1.total_number_of_conflicts + len(conflicting_students)
-                        study_group2.total_number_of_conflicts = study_group1.total_number_of_conflicts + len(conflicting_students)
+                        study_group2.total_number_of_conflicts = study_group2.total_number_of_conflicts + len(conflicting_students)
+                        #study_group2.total_number_of_conflicts = study_group2.total_number_of_conflicts + len(conflicting_students)
+                        # ??? not sure if the commented line about should be for studygroup 1 or 2???
 
     def impact_number_algorithm(study_group_list, number_of_periods):
         study_group_list_ordered_by_impact_number = []
@@ -520,7 +522,7 @@ def main():
 
         # Calculating the impact number for all the study groups in the
         # remaining study group list
-        #remaining_study_groups = calculate_impact_numbers(remaining_study_groups,period_list)
+        # remaining_study_groups = calculate_impact_numbers(remaining_study_groups,period_list)
 
         # Assign the study group with the highest impact number to
         # the period with it has the least amount of conflicts with.
@@ -586,7 +588,7 @@ def main():
                             tie_breaker2_number_of_conflicting_study_groups(study_groups_with_highest_conflict_number)
                         if len(study_groups_with_highest_number_of_conflicting_study_groups) > 1:
                             study_group_to_assign_next = \
-                                study_groups_with_highest_number_of_conflicting_study_groups[0]
+                                study_groups_with_highest_number_of_conflicting_study_groups[1]#CHANGED 0->1
                         else:
                             study_group_to_assign_next = \
                                 study_groups_with_highest_number_of_conflicting_study_groups[0]
@@ -701,7 +703,7 @@ def main():
             # Sorted by total number of conflicts
             # create_excel_file(best_scenarios_list, period_list_from_test)
             update_excel_file(best_scenarios_list, period_list_from_test, cycle_number)
-
+            print("Cycle",cycle_number +1 ,"complete!")
         if len(percent_error_list) == 0 :
             average_error = 0
         else:
@@ -743,7 +745,7 @@ def main():
 
         excel_logistics(percent_correct, average_error, average_conflict_difference)
 
-    run_program(list_of_all_study_group_names, number_of_periods, number_of_students_to_create, 100)
+    run_program(list_of_all_study_group_names, number_of_periods, number_of_students_to_create, 50)
 
 
 if __name__=="__main__":
