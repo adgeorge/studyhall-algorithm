@@ -2,6 +2,7 @@
 from random import randint
 # from operator import attrgetter
 from openpyxl import Workbook
+from openpyxl import load_workbook
 from openpyxl.compat import range
 from openpyxl.cell import get_column_letter
 
@@ -262,13 +263,21 @@ def main():
             study_group.print_conflicts()
         print("FINISHED PRINTING STUDY GROUPS")
 
-    def create_excel_file(scenario_list,period_list):
+    def create_excel_file():
         wb = Workbook()
 
-        ws = wb.active
+        # ws = wb.active
 
         destination_filename = "UB Algorithm Data.xlsx"
 
+        wb.save(filename=destination_filename)
+
+    def update_excel_file(scenario_list, period_list, sheet_number):
+
+        destination_filename = "UB Algorithm Data.xlsx"
+        wb = load_workbook(destination_filename)
+        # ws = wb.create_sheet(sheet_number)
+        ws = wb.create_sheet()
         ws.sheet_properties.tabColor = "1072BA"
 
         a = ws.cell(row=1, column=1)
@@ -629,44 +638,112 @@ def main():
 
     # Generate Students
     number_of_students_to_create = 200
-    list_of_students = generate_list_of_students(number_of_students_to_create)
 
-    # Randomly assigns study groups to students.
-    # The number of study groups depends on the number of periods
-    assign_study_groups_to_students(list_of_students,number_of_periods,list_of_all_study_group_names)
+    create_excel_file()
 
-    # Creates a list of study groups based
-    # on the array of study group names
-    study_group_list = generate_study_group_list(list_of_all_study_group_names)
+    def run_program(list_of_all_study_group_names, number_of_periods, number_of_students_to_create, num_times_to_run):
+        times_correct = 0
+        numbers_off_by = []
+        percent_error_list = []
+        for cycle_number in range(0,num_times_to_run):
+            list_of_students = generate_list_of_students(number_of_students_to_create)
 
-    # Matches up the students to their randomly assigned study groups
-    assign_student_to_study_group(list_of_students, study_group_list)
+            # Randomly assigns study groups to students.
+            # The number of study groups depends on the number of periods
+            assign_study_groups_to_students(list_of_students,number_of_periods,list_of_all_study_group_names)
 
-    # Finds the number of students that are
-    # assigned to more than one study group
-    get_study_group_conflicts(study_group_list)
+            # Creates a list of study groups based
+            # on the array of study group names
+            study_group_list = generate_study_group_list(list_of_all_study_group_names)
 
-    # For testing purposes
-    print_all_students_info(list_of_students)
-    print_all_study_group_info(study_group_list)
+            # Matches up the students to their randomly assigned study groups
+            assign_student_to_study_group(list_of_students, study_group_list)
 
-    # Creates every possible scenario by placing every
-    # combination of study groups in the given periods
-    scenarios_list = scenarios_generator(study_group_list,number_of_periods)
-    ordered_scenario_list = sorted(scenarios_list, key= lambda x: x.total_number_of_conflicts, reverse=False)
+            # Finds the number of students that are
+            # assigned to more than one study group
+            get_study_group_conflicts(study_group_list)
 
-    # this is the list of only the best scenarios
-    min_conflict_number = min(scenario.total_number_of_conflicts for scenario in scenarios_list)
-    best_scenarios_list = []
-    for scenario in scenarios_list:
-        if scenario.total_number_of_conflicts == min_conflict_number:
-            best_scenarios_list.append(scenario)
+            # For testing purposes
+            print_all_students_info(list_of_students)
+            print_all_study_group_info(study_group_list)
 
-    period_list_from_test = algorithm1(study_group_list,number_of_periods)
+            # Creates every possible scenario by placing every
+            # combination of study groups in the given periods
+            scenarios_list = scenarios_generator(study_group_list,number_of_periods)
+            # ordered_scenario_list = sorted(scenarios_list, key= lambda x: x.total_number_of_conflicts, reverse=False)
 
-    # Create the EXCEL DOC
-    # Sorted by total number of conflicts
-    create_excel_file(best_scenarios_list, period_list_from_test)
+            # this is the list of only the best scenarios
+            min_conflict_number = min(scenario.total_number_of_conflicts for scenario in scenarios_list)
+            best_scenarios_list = []
+            for scenario in scenarios_list:
+                if scenario.total_number_of_conflicts == min_conflict_number:
+                    best_scenarios_list.append(scenario)
+
+            max_conflict_number = max(scenario.total_number_of_conflicts for scenario in scenarios_list)
+
+            period_list_from_test = algorithm1(study_group_list,number_of_periods)
+
+            algo_total_conflicts = 0
+            num_off_by = 0
+            for period in period_list_from_test:
+                algo_total_conflicts += period.number_of_conflicts
+
+            if algo_total_conflicts == min_conflict_number:
+                times_correct += 1
+            else:
+                num_off_by = algo_total_conflicts - min_conflict_number
+                numbers_off_by.append(num_off_by)
+                error = (algo_total_conflicts - min_conflict_number) / min_conflict_number
+                percent_error_list.append(error)
+
+
+            # Create the EXCEL DOC
+            # Sorted by total number of conflicts
+            # create_excel_file(best_scenarios_list, period_list_from_test)
+            update_excel_file(best_scenarios_list, period_list_from_test, cycle_number)
+
+        if len(percent_error_list) == 0 :
+            average_error = 0
+        else:
+            error_sum = 0
+            for error in percent_error_list:
+                error_sum += error
+            average_error = error_sum / len(percent_error_list)
+
+            percent_correct = times_correct/num_times_to_run
+
+        conflict_diff_sum = 0
+        for conflict_diff in numbers_off_by:
+            conflict_diff_sum += conflict_diff
+        average_conflict_difference = conflict_diff_sum / len(numbers_off_by)
+
+        def excel_logistics(correct, error, average_conflict_diff):
+            destination_filename = "UB Algorithm Data.xlsx"
+            wb = load_workbook(destination_filename)
+            ws = wb.worksheets[0]
+            ws.sheet_properties.tabColor = "1072BA"
+
+            a = ws.cell(row=1, column=1)
+            b = ws.cell(row=1, column=2)
+            c = ws.cell(row=2, column=1)
+            d = ws.cell(row=2, column=2)
+            e = ws.cell(row=1, column=3)
+            f = ws.cell(row=2, column=3)
+            a.value = "Percent Correct"
+            b.value = "Average Percent Error"
+            c.value = correct
+            d.value = error
+            e.value = "Average Conflict Difference"
+            f.value = average_conflict_diff
+
+            ws.column_dimensions["A"].width = 16
+            ws.column_dimensions["B"].width = 18
+            ws.column_dimensions["C"].width = 20
+            wb.save(filename=destination_filename)
+
+        excel_logistics(percent_correct, average_error, average_conflict_difference)
+
+    run_program(list_of_all_study_group_names, number_of_periods, number_of_students_to_create, 100)
 
 
 if __name__=="__main__":
