@@ -1,240 +1,277 @@
 # Note:The template file will be copied to a new file. When you change the code of the template file you can create new file with this base code.
 from random import randint
 def main():
-#-----------------------------------Classes-----------------------------------------
-#-----------------------------------Classes-----------------------------------------
-#-----------------------------------Classes-----------------------------------------
+# -----------------------------------Classes-----------------------------------------
+
     # Defines 'Student' Class
     class Student:
         def __init__(self, id):
             self.id = id
-            self.studyGroupList =[]
+            self.study_group_list =[]
         
-        def addToStudyGroupList(self, studyGroup):
-            if len(self.studyGroupList)<2:
-                self.studyGroupList.append(studyGroup)
-        
-        def getId(self):
-            return self.id
+        def add_to_study_group_list(self, study_group, number_of_periods):
+            if len(self.study_group_list) < number_of_periods:
+                self.study_group_list.append(study_group)
             
         def print(self):
-            print("student:", self.id, "is in study group(s):", self.studyGroupList)
-    
-            
+            print("student:", self.id, "is in study group(s):", self.study_group_list)
+
     # Defines 'Conflict' Class
     class Conflict:
-        def __init__(self, conflictingStudyGroup, conflictingListOfStudents):
-            self.conflictingStudyGroup = conflictingStudyGroup
-            self.conflictingListOfStudents = conflictingListOfStudents
-            self.numberOfConflictingStudents = len(conflictingListOfStudents)
+        def __init__(self, conflicting_study_group, conflicting_list_of_students):
+            self.conflicting_study_group = conflicting_study_group
+            self.conflicting_list_of_students = conflicting_list_of_students
+            self.number_of_conflicting_students = len(conflicting_list_of_students)
 
     # Defines 'Period' Class
     class Period:
         def __init__(self,id):
             self.id = id
-            self.listOfStudyGroups = []
-            self.listOfConflictingStudents =[]
-            self.numberOfConflicts = 0
+            self.list_of_study_groups = []
+            self.list_of_conflicting_students =[]
+            self.number_of_conflicts = 0
              
-        def findConflicts(self):
-            for currentStudyGroup in range(0,len(self.listOfStudyGroups)):
-                for studyGroupToCompare in range(0, len(self.listOfStudyGroups)):
-                    studyGroup1 = self.listOfStudyGroups[currentStudyGroup]
-                    studyGroup2 = self.listOfStudyGroups[studyGroupToCompare]
-                    if currentStudyGroup < studyGroupToCompare:
-                        conflictingStudents = list(set(studyGroup1.studentList) & set(studyGroup2.studentList))
-                        if len(conflictingStudents) > 0:
-                            self.numberOfConflicts = self.numberOfConflicts + len(conflictingStudents)
-                            for student in conflictingStudents:
-                                self.listOfConflictingStudents.append(student)
+        def find_conflicts(self):
+            for current_study_group in range(0,len(self.list_of_study_groups)):
+                for study_group_to_compare in range(0, len(self.list_of_study_groups)):
+                    study_group1 = self.list_of_study_groups[current_study_group]
+                    study_group2 = self.list_of_study_groups[study_group_to_compare]
+                    if current_study_group < study_group_to_compare:
+                        conflicting_students = list(set(study_group1.student_list) & set(study_group2.student_list))
+                        if len(conflicting_students) > 0:
+                            self.number_of_conflicts = self.number_of_conflicts + len(conflicting_students)
+                            for student in conflicting_students:
+                                self.list_of_conflicting_students.append(student)
         
         def print(self):
             print("Period", self.id,":")
-            print("List of Study Groups: ", [x.name for x in self.listOfStudyGroups])
-            print("List of Conflicting Students: ", [x.id for x in self.listOfConflictingStudents])
-            print("Number of Conflicts: ", self.numberOfConflicts)
+            print("List of Study Groups:", [x.name for x in self.list_of_study_groups])
+            print("List of Conflicting Students:", [x.id for x in self.list_of_conflicting_students])
+            print("Number of Conflicts:", self.number_of_conflicts)
             print("\n")
 
     #Defines 'Scenario' Class
     class Scenario:
-        def __init__(self, id, periodList):
+        def __init__(self, id, period_list):
             self.id = id
-            self.periodList = periodList
-            self.totalNumOfConflicts = 0
+            self.period_list = period_list
+            self.total_number_of_conflicts = 0
 
-        def calcTotalConflicts(self):
-            for period in self.periodList:
-                self.totalNumOfConflicts = self.totalNumOfConflicts + period.numberOfConflicts
-            #for period in self.periodList:
-             #   self.totalNumOfConflicts = self.totalNumOfConflicts + period.numberOfConflicts
+        def calculate_scenarios_total_conflicts(self):
+            for period in self.period_list:
+                self.total_number_of_conflicts = self.total_number_of_conflicts + period.number_of_conflicts
                 
         def print(self):
-            print("Scenario ",self.id,":")
-            print("Total Number of Conflicts: ", self.totalNumOfConflicts)
+            print("Scenario",self.id,":")
+            print("Total Number of Conflicts:", self.total_number_of_conflicts)
          
     #Defines Study Group Class
     class StudyGroup:
         def __init__(self, name):
             self.name = name
-            self.studentList = []
-            self.conflictingStudyGroupList = []
-            self.totalNumberOfConflicts = 0
+            self.student_list = []
+            self.conflicting_study_groupList = []
+            self.total_number_of_conflicts = 0
             self.period = 0
         
-        def addStudent(self, student):
-            self.studentList.append(student)
+        def add_student(self, student):
+            self.student_list.append(student)
         
-        def getTotalConflicts(self):
-            self.totalNumberOfConflicts = 0
-            for studyGroup in self.conflictingStudyGroupList:
-                for student in studyGroup.conflictingListOfStudents:
-                    self.totalNumberOfConflicts +=1
-            return self.totalNumberOfConflicts
+        def get_total_conflicts(self):
+            self.total_number_of_conflicts = 0
+            for study_group in self.conflicting_study_groupList:
+                for student in study_group.conflicting_list_of_students:
+                    self.total_number_of_conflicts +=1
+            return self.total_number_of_conflicts
             
         def print(self):
             print(self.name)
-            print("The students in", self.name, "are: ",[x.id for x in self.studentList])
-            print("Total number of students in", self.name, ":", len(self.studentList))
-        def printConflicts(self):
-            print("Total number of conflicts in ", self.name, ":", self.getTotalConflicts())
-            print("The conflicting study groups with ", self.name, "are:\n",[x.conflictingStudyGroup for x in self.conflictingStudyGroupList])
-            for conflictObject in self.conflictingStudyGroupList:
-                print("Students in ", self.name," that are also in ", conflictObject.conflictingStudyGroup,":")
-                print([x.id for x in conflictObject.conflictingListOfStudents])
+            print("The students in", self.name, "are:",[x.id for x in self.student_list])
+            print("Total number of students in", self.name, ":", len(self.student_list))
+
+        def print_conflicts(self):
+            print("Total number of conflicts in", self.name, ":", self.get_total_conflicts())
+            print("The conflicting study groups with", self.name, "are:\n",[x.conflicting_study_group for x in self.conflicting_study_groupList])
+            for conflict_object in self.conflicting_study_groupList:
+                print("Students in", self.name," that are also in ", conflict_object.conflicting_study_group,":")
+                print([x.id for x in conflict_object.conflicting_list_of_students])
             print("\n") 
 
-#-----------------------------------Functions-----------------------------------------
-#-----------------------------------Functions-----------------------------------------
-#-----------------------------------Functions-----------------------------------------
-    def scenarioGenerator(listOfAllStudyGroups, numberOfPeriods):
-        numberOfStudyGroupsInPeriod1 = 0
-        scenarioList = []
-        scenarioNumber = 0
-        minConflicts = 200
-        bestScenarioList = []
-        while numberOfStudyGroupsInPeriod1 != len(listOfAllStudyGroups):
-            numberOfStudyGroupsInPeriod1 = 0
-            i = 0
-            while (listOfAllStudyGroups[i].period != 0) & (i < len(listOfAllStudyGroups)):
-                listOfAllStudyGroups[i].period = 0
-                i+=1
-            listOfAllStudyGroups[i].period = 1
 
+# -----------------------------------Functions-----------------------------------------
+
+    def scenarios_generator(list_of_all_study_groups, number_of_periods):
+        number_of_study_groups_in_last_period = 0
+        scenario_list = []
+        scenario_number = 0
+        min_conflicts = 2000
+        best_scenario_list = []
+        number_of_total_study_groups = len(list_of_all_study_groups)
+
+        def create_period_list(number_of_periods):
             listOfPeriods = []
-            for num in range(0,numberOfPeriods):
+            for num in range(0,number_of_periods):
                 listOfPeriods.append(Period(num))
+            return listOfPeriods
 
-#Creates scenarios by adding study groups to their respective period.
-            for period in listOfPeriods:
-                for studyGroup in listOfAllStudyGroups:
-                    if studyGroup.period == period.id:
-                        period.listOfStudyGroups.append(studyGroup)
+        def create_scenario(period_list,list_of_all_study_groups):
+            for period in period_list:
+                for study_group in list_of_all_study_groups:
+                    if study_group.period == period.id:
+                        period.list_of_study_groups.append(study_group)
 
-                period.findConflicts()
-            s = Scenario(scenarioNumber,listOfPeriods)
-            s.calcTotalConflicts()
-            scenarioList.append(s)
+                period.find_conflicts()
+            return Scenario(scenario_number,period_list)
 
+        # Will continue to run until all the study groups moved into the last period
+        while number_of_study_groups_in_last_period != number_of_total_study_groups:
+            number_of_study_groups_in_last_period = 0
+            i = 0
+
+            while (list_of_all_study_groups[i].period != 0) & (i < number_of_total_study_groups):
+                list_of_all_study_groups[i].period = 0
+                i+=1
+            list_of_all_study_groups[i].period = 1
+
+            period_list = create_period_list(number_of_periods)
+            s = create_scenario(period_list,list_of_all_study_groups)
+            s.calculate_scenarios_total_conflicts()
+            scenario_list.append(s)
 
             #For Testing
-            print("Scenario", scenarioNumber)
-            print("Total Number of Conflicts:",s.totalNumOfConflicts)
-            for period in listOfPeriods:
-                #period.findConflicts()
-                print("Number of Conflicts in Period ",period.id,":",period.numberOfConflicts)
-                print("Period: ",period.id," ",[x.name for x in period.listOfStudyGroups])
+            print("Scenario", scenario_number)
+            print("Total Number of Conflicts:",s.total_number_of_conflicts)
+            for period in period_list:
+                print("Number of Conflicts in Period",period.id,":",period.number_of_conflicts)
+                print("Period:",period.id,[x.name for x in period.list_of_study_groups])
 
+            # Finds lowest amount of conflicts
+            if s.total_number_of_conflicts < min_conflicts:
+                min_conflicts = s.total_number_of_conflicts
 
-            #Finds the best Scenario
-            if s.totalNumOfConflicts < minConflicts:
-                minConflicts = s.totalNumOfConflicts
+            for study_group in range(0, number_of_total_study_groups):
+                if list_of_all_study_groups[study_group].period == number_of_periods-1:
+                    number_of_study_groups_in_last_period +=1
 
-            for studyGroup in range(0,len(listOfAllStudyGroups)):
-                if listOfAllStudyGroups[studyGroup].period == 1:
-                    numberOfStudyGroupsInPeriod1 +=1
             #For Testing
-            print("number of study groups in period 1: ", numberOfStudyGroupsInPeriod1)
-            print("length of list of all study groups: ", len(listOfAllStudyGroups))
+            print("number of study groups in period 1:", number_of_study_groups_in_last_period)
+            print("length of list of all study groups:", number_of_total_study_groups)
             print("\n")
 
-            scenarioNumber +=1
+            scenario_number +=1
 
         #Finds the Scenarios with the lowest amount of conflicts
-        for scenario in scenarioList:
-                if scenario.totalNumOfConflicts == minConflicts:
-                    bestScenarioList.append(scenario)
-        print("Best Scenarios: ", [x.id for x in bestScenarioList])
-        print("With",minConflicts,"number of conflicts")
-        return scenarioList
+        for scenario in scenario_list:
+                if scenario.total_number_of_conflicts == min_conflicts:
+                    best_scenario_list.append(scenario)
+        print("Generated all scenarios!")
+        print("Best Scenarios:", [x.id for x in best_scenario_list])
+        print("With",min_conflicts,"number of conflicts")
+        return scenario_list
 
-#-----------------------------------Main()-----------------------------------------
-#-----------------------------------Main()-----------------------------------------
-#-----------------------------------Main()-----------------------------------------
-    #Creates a list of 200 students
-    listOfAllStudents = []
-    for x in range(1,201):
-        listOfAllStudents.append(Student(x))
-    
+    def generate_list_of_students(number_of_students_to_create):
+        list_of_all_students = []
+        for x in range(1, number_of_students_to_create + 1):
+            list_of_all_students.append(Student(x))
+        return list_of_all_students
+
+    def generate_study_group_list(list_of_all_study_group_names):
+        list_of_all_study_groups = []
+        for x in list_of_all_study_group_names:
+            list_of_all_study_groups.append(StudyGroup(x))
+        return list_of_all_study_groups
+
+    def assign_study_groups_to_students(list_of_students, number_of_periods,list_of_all_study_group_names):
+        number_of_students = len(list_of_students)
+        for x in range(0,number_of_students):
+            study_group = 0
+            while study_group < randint(0,number_of_periods):
+                list_of_students[x].add_to_study_group_list(
+                    list_of_all_study_group_names[
+                        randint(0,len(list_of_all_study_group_names)-1)],number_of_periods)
+                study_group += 1
+
+    def assign_student_to_study_group(list_of_students, study_group_list):
+        for current_study_group in study_group_list:
+            for current_student in list_of_students:
+                for index in current_student.study_group_list:
+                    if index == current_study_group.name:
+                        current_study_group.add_student(current_student)
+
+    def get_study_group_conflicts(study_group_list):
+        for current_study_group in range(0,len(study_group_list)):
+            for study_group_to_compare in range(0, len(study_group_list)):
+                study_group1 = study_group_list[current_study_group]
+                study_group2 = study_group_list[study_group_to_compare]
+                if current_study_group < study_group_to_compare:
+                    conflicting_students = list(set(study_group1.student_list) & set(study_group2.student_list))
+                    if len(conflicting_students) > 0:
+                        study_group1.conflicting_study_groupList.append(Conflict(study_group2.name, conflicting_students))
+                        study_group2.conflicting_study_groupList.append(Conflict(study_group1.name, conflicting_students))
+                        study_group1.total_number_of_conflicts = study_group1.total_number_of_conflicts + len(conflicting_students)
+                        study_group2.total_number_of_conflicts = study_group1.total_number_of_conflicts + len(conflicting_students)
+
+
+# ------------------------------Functions for Testing--------------------------------
+
+    def print_all_students_info(list_of_students):
+        print("PRINTING STUDENTS")
+        for student in list_of_students:
+            student.print()
+        print("FINISHED PRINTING STUDENTS")
+
+    def print_all_study_group_info(study_group_list):
+        print("STUDY GROUPS")
+        for study_group in study_group_list:
+            study_group.print()
+            study_group.print_conflicts()
+        print("FINISHED PRINTING STUDY GROUPS")
+
+# -----------------------------------Main()-----------------------------------------
     #List of Study Group Names
-    #listOfAllStudyGroupNames = ["Integrated Math", "PreCalc", "Calculus", "Stats & Probability", "Physics", "Chemistry", "Anatomy", "Biology", "Environmental Science", "English 10", "English 11", "English 12", "Vietnamese", "Chinese", "Nepali", "STEM Lab", "Art", "Music", "Senior Seminar"]
+    #list_of_all_study_group_names = ["Integrated Math", "PreCalc", "Calculus",
+                            #   "Stats & Probability", "Physics", "Chemistry",
+                            #   "Anatomy", "Biology", "Environmental Science",
+                            #   "English 10", "English 11", "English 12", "Vietnamese",
+                            #   "Chinese", "Nepali", "STEM Lab", "Art", "Music",
+                            #   "Senior Seminar"]
+
 
     #For testing
-    listOfAllStudyGroupNames = ["Integrated Math", "PreCalc", "Calculus", "Stats & Probability", "Physics", "Chemistry", "Anatomy", "Biology", "Environmental Science","English 10"]
-    #Assigns randomly 0,1 or 2 study groups to every student     
-    for x in range(0,len(listOfAllStudents)):
-        i = 0
-        while i < randint(0,2):
-            listOfAllStudents[x].addToStudyGroupList(listOfAllStudyGroupNames[randint(0, len(listOfAllStudyGroupNames)-1)])
-    
-    #Prints all the students info
-    #print("***********************************PRINTING STUDENTS***************************************")                
-    #for x in listOfAllStudents:
-        #x.print()
-    
-    #Creates a list of study groups with names from the list of study group names
-    listOfAllStudyGroups = []
-    for x in listOfAllStudyGroupNames:
-        listOfAllStudyGroups.append(StudyGroup(x))
-        
-    #Adds all the students to the study group(s) if any 
-    #to study groups the student currently has in the study group list
-    for currentStudyGroup in listOfAllStudyGroups:
-        for currentStudent in listOfAllStudents:
-            for index in currentStudent.studyGroupList:
-                if index == currentStudyGroup.name:
-                    currentStudyGroup.addStudent(currentStudent)
-                    
-    #Finds all the student intersections between study groups (conflicts)
-    #Creates a list of the conflicts
-    # Then appends all the conflicts to the conflictList in each studyGroup
-    for currentStudyGroup in range(0,len(listOfAllStudyGroups)):
-        for studyGroupToCompare in range(0, len(listOfAllStudyGroups)):
-            studyGroup1 = listOfAllStudyGroups[currentStudyGroup]
-            studyGroup2 = listOfAllStudyGroups[studyGroupToCompare]
-            if currentStudyGroup < studyGroupToCompare:
-                conflictingStudents = list(set(studyGroup1.studentList) & set(studyGroup2.studentList))
-                if len(conflictingStudents) > 0:
-                    studyGroup1.conflictingStudyGroupList.append(Conflict(studyGroup2.name, conflictingStudents))
-                    studyGroup2.conflictingStudyGroupList.append(Conflict(studyGroup1.name, conflictingStudents))
-                    studyGroup1.totalNumberOfConflicts = studyGroup1.totalNumberOfConflicts + len(conflictingStudents)
-                    studyGroup2.totalNumberOfConflicts = studyGroup1.totalNumberOfConflicts + len(conflictingStudents)
-    #print("***********************************FINISHED PRINTING STUDENTS***************************************")
-    print("***********************************STUDY GROUPS***************************************")
-    for x in listOfAllStudyGroups:
-        x.print()
-        x.printConflicts()
-    print("***********************************FINISHED GENERATING STUDY GROUPS***************************************")
+    list_of_all_study_group_names = ["Integrated Math", "PreCalc", "Calculus",
+                                "Stats & Probability", "Physics", "Chemistry",
+                                "Anatomy", "Biology", "Environmental Science",
+                                "English 10"]
 
+    # This will determine how many periods are available
+    number_of_periods = 2
 
-    scenarioGenerator(listOfAllStudyGroups,2)
-    print("Generated all scenarios!")
+    # Generate Students
+    number_of_students_to_create = 200
+    list_of_students = generate_list_of_students(number_of_students_to_create)
 
-#NEXT
-#Make it so some study groups are larger than others, right now the distribution of students are too evenly disperesed
-#Make more students that have similar conflicts (same issure ^^)
-#Try creating grade levels so groups of students have similar schedules
-#
-#next thing to do is sort study groups into first and second period using different sorting algorithm
+    # Randomly assigns study groups to students.
+    # The number of study groups depends on the number of periods
+    assign_study_groups_to_students(list_of_students,number_of_periods,list_of_all_study_group_names)
+
+    # Creates a list of study groups based
+    # on the array of study group names
+    study_group_list = generate_study_group_list(list_of_all_study_group_names)
+
+    # Matches up the students to their randomly assigned study groups
+    assign_student_to_study_group(list_of_students, study_group_list)
+
+    # Finds the number of students that are
+    # assigned to more than one study group
+    get_study_group_conflicts(study_group_list)
+
+    # For testing purposes
+    print_all_students_info(list_of_students)
+    print_all_study_group_info(study_group_list)
+
+    # Creates every possible scenario by placing every
+    # combination of study groups in the given periods
+    scenarios_list = scenarios_generator(study_group_list,number_of_periods)
 
 if __name__=="__main__":
     main()
