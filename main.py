@@ -1,5 +1,9 @@
 # Note:The template file will be copied to a new file. When you change the code of the template file you can create new file with this base code.
 from random import randint
+from openpyxl import Workbook
+from openpyxl.compat import range
+# from openpyxl.cell import get_column_letter
+
 def main():
 # -----------------------------------Classes-----------------------------------------
 
@@ -211,6 +215,30 @@ def main():
                         study_group1.total_number_of_conflicts = study_group1.total_number_of_conflicts + len(conflicting_students)
                         study_group2.total_number_of_conflicts = study_group1.total_number_of_conflicts + len(conflicting_students)
 
+    def impact_number_algorithm(study_group_list, number_of_periods):
+        study_group_list_ordered_by_impact_number = []
+
+        def find_worst_pairs(study_group_list):
+            worst_pairs_list = []
+
+            def find_highest_number_of_conflicts(study_group_list):
+                highest_conflict_number = 0
+                for study_group in study_group_list:
+                    for conflict in study_group.conflicting_study_group_list:
+                        if conflict.number_of_conflicting_students > highest_conflict_number:
+                            highest_conflict_number = conflict.number_of_conflicting_students
+                return highest_conflict_number
+
+            highest_conflict_number = find_highest_number_of_conflicts(study_group_list)
+
+            for study_group in study_group_list:
+                for conflict in study_group.conflicting_study_group_list:
+                    if conflict.number_of_conflicting_students == highest_conflict_number:
+                        worst_pairs_list.append(conflict.conflicting_study_group)
+            return worst_pairs_list
+
+
+
 
 # ------------------------------Functions for Testing--------------------------------
 
@@ -226,6 +254,29 @@ def main():
             study_group.print()
             study_group.print_conflicts()
         print("FINISHED PRINTING STUDY GROUPS")
+
+    def create_excel_file(scenario_list):
+        wb = Workbook()
+
+        ws = wb.active
+
+        destination_filename = "UB Algorithm Data.xlsx"
+
+        ws.sheet_properties.tabColor = "1072BA"
+
+        a = ws.cell(row=1, column=1)
+        b = ws.cell(row=1, column=2)
+        a.value = "Scenario ID"
+        b.value = "Number of Conflicts"
+
+        ws.column_dimensions["B"].width = 16
+        for x in range(0, len(ordered_scenario_list)):
+            a = ws.cell(row=x + 2, column=1)
+            a.value = ordered_scenario_list[x].id
+            conflicts = ws.cell(row=x + 2, column=2)
+            conflicts.value = ordered_scenario_list[x].total_number_of_conflicts
+
+        wb.save(filename=destination_filename)
 
 # -----------------------------------Main()-----------------------------------------
     #List of Study Group Names
@@ -272,6 +323,11 @@ def main():
     # Creates every possible scenario by placing every
     # combination of study groups in the given periods
     scenarios_list = scenarios_generator(study_group_list,number_of_periods)
+    ordered_scenario_list = sorted(scenarios_list, key= lambda x: x.total_number_of_conflicts, reverse=False)
+
+    # Create the EXCEL DOC
+    # Sorted by total number of conflicts
+    create_excel_file(ordered_scenario_list)
 
 if __name__=="__main__":
     main()
