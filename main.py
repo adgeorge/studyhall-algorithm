@@ -3,7 +3,7 @@ from random import randint
 # from operator import attrgetter
 from openpyxl import Workbook
 from openpyxl.compat import range
-# from openpyxl.cell import get_column_letter
+from openpyxl.cell import get_column_letter
 
 def main():
 # -----------------------------------Classes-----------------------------------------
@@ -262,7 +262,7 @@ def main():
             study_group.print_conflicts()
         print("FINISHED PRINTING STUDY GROUPS")
 
-    def create_excel_file(scenario_list):
+    def create_excel_file(scenario_list,period_list):
         wb = Workbook()
 
         ws = wb.active
@@ -275,69 +275,41 @@ def main():
         b = ws.cell(row=1, column=2)
         a.value = "Scenario ID"
         b.value = "Number of Conflicts"
-
+        row_left_off = 0
         ws.column_dimensions["B"].width = 16
         for x in range(0, len(scenario_list)):
-            a = ws.cell(row=x + 2, column=1)
+            a = ws.cell(row=3*x + 2, column=1)
             a.value = scenario_list[x].id
-            conflicts = ws.cell(row=x + 2, column=2)
+            conflicts = ws.cell(row=3*x + 2, column=2)
             conflicts.value = scenario_list[x].total_number_of_conflicts
+            period0 = ws.cell(row = 3*x + 2, column = 3)
+            period1 = ws.cell(row = 3*x + 3, column = 3)
+            period0.value = "Period 0"
+            period1.value = "Period 1"
+            for period_index in range(0,len(scenario_list[x].period_list)):
+                for study_group_index in range(0,len(scenario_list[x].period_list[period_index].list_of_study_groups)):
+                    period = ws.cell(row= 3*x + 2 + period_index, column = 4 + study_group_index)
+                    ws.column_dimensions[get_column_letter(4 + study_group_index)].width = 17
+                    period.value = \
+                        scenario_list[x].period_list[period_index].list_of_study_groups[study_group_index].name
+            row_left_off = x*3 + 5
+
+        c = ws.cell(row = row_left_off, column=1)
+        c.value = "Algorithm Scenario"
+        d = ws.cell(row = row_left_off, column=2)
+        numb_of_conflicts = 0
+        for period in period_list:
+            numb_of_conflicts += period.number_of_conflicts
+
+        d.value = numb_of_conflicts
+        for period_index in range(0,len(period_list)):
+            for study_group_index in range(0,len(period_list[period_index].list_of_study_groups)):
+                c = ws.cell(row = period_index+ row_left_off, column = study_group_index + 4)
+                ws.column_dimensions[get_column_letter(study_group_index+2)].width = 17
+                c.value = period_list[period_index].list_of_study_groups[study_group_index].name
+
 
         wb.save(filename=destination_filename)
-
-# -----------------------------------Main()-----------------------------------------
-    # List of Study Group Names
-    list_of_all_study_group_names = ["Integrated Math", "PreCalc", "Calculus",
-                              "Stats & Probability", "Physics", "Chemistry",
-                              "Anatomy", "Biology", "Environmental Science",
-                              "English 10", "English 11", "English 12", "Vietnamese",
-                              "Chinese", "Nepali", "STEM Lab", "Art", "Music",
-                              "Senior Seminar"]
-
-
-    # For testing
-    # list_of_all_study_group_names = ["Integrated Math", "PreCalc", "Calculus",
-    #                             "Stats & Probability", "Physics", "Chemistry",
-    #                             "Anatomy", "Biology", "Environmental Science",
-    #                             "English 10"]
-
-    # This will determine how many periods are available
-    number_of_periods = 2
-
-    # Generate Students
-    number_of_students_to_create = 200
-    list_of_students = generate_list_of_students(number_of_students_to_create)
-
-    # Randomly assigns study groups to students.
-    # The number of study groups depends on the number of periods
-    assign_study_groups_to_students(list_of_students,number_of_periods,list_of_all_study_group_names)
-
-    # Creates a list of study groups based
-    # on the array of study group names
-    study_group_list = generate_study_group_list(list_of_all_study_group_names)
-
-    # Matches up the students to their randomly assigned study groups
-    assign_student_to_study_group(list_of_students, study_group_list)
-
-    # Finds the number of students that are
-    # assigned to more than one study group
-    get_study_group_conflicts(study_group_list)
-
-    # For testing purposes
-    print_all_students_info(list_of_students)
-    print_all_study_group_info(study_group_list)
-
-    # Creates every possible scenario by placing every
-    # combination of study groups in the given periods
-# Uncomment this for comparing
-    scenarios_list = scenarios_generator(study_group_list,number_of_periods)
-    ordered_scenario_list = sorted(scenarios_list, key= lambda x: x.total_number_of_conflicts, reverse=False)
-
-    # Create the EXCEL DOC
-    # Sorted by total number of conflicts
-# Uncomment this for comparing
-    create_excel_file(ordered_scenario_list)
-
 
     # TEST ALGORITHM 1
     def algorithm1(study_group_list,number_of_periods):
@@ -634,7 +606,67 @@ def main():
                 period.print()
         print("done!")
 
-    algorithm1(study_group_list,number_of_periods)
+        return period_list_algo1
+
+# -----------------------------------Main()-----------------------------------------
+    # List of Study Group Names
+    # list_of_all_study_group_names = ["Integrated Math", "PreCalc", "Calculus",
+    #                           "Stats & Probability", "Physics", "Chemistry",
+    #                           "Anatomy", "Biology", "Environmental Science",
+    #                           "English 10", "English 11", "English 12", "Vietnamese",
+    #                           "Chinese", "Nepali", "STEM Lab", "Art", "Music",
+    #                           "Senior Seminar"]
+
+
+    # For testing
+    list_of_all_study_group_names = ["Integrated Math", "PreCalc", "Calculus",
+                                "Stats & Probability", "Physics", "Chemistry",
+                                "Anatomy", "Biology", "Environmental Science",
+                                "English 10"]
+
+    # This will determine how many periods are available
+    number_of_periods = 2
+
+    # Generate Students
+    number_of_students_to_create = 200
+    list_of_students = generate_list_of_students(number_of_students_to_create)
+
+    # Randomly assigns study groups to students.
+    # The number of study groups depends on the number of periods
+    assign_study_groups_to_students(list_of_students,number_of_periods,list_of_all_study_group_names)
+
+    # Creates a list of study groups based
+    # on the array of study group names
+    study_group_list = generate_study_group_list(list_of_all_study_group_names)
+
+    # Matches up the students to their randomly assigned study groups
+    assign_student_to_study_group(list_of_students, study_group_list)
+
+    # Finds the number of students that are
+    # assigned to more than one study group
+    get_study_group_conflicts(study_group_list)
+
+    # For testing purposes
+    print_all_students_info(list_of_students)
+    print_all_study_group_info(study_group_list)
+
+    # Creates every possible scenario by placing every
+    # combination of study groups in the given periods
+    scenarios_list = scenarios_generator(study_group_list,number_of_periods)
+    ordered_scenario_list = sorted(scenarios_list, key= lambda x: x.total_number_of_conflicts, reverse=False)
+
+    # this is the list of only the best scenarios
+    min_conflict_number = min(scenario.total_number_of_conflicts for scenario in scenarios_list)
+    best_scenarios_list = []
+    for scenario in scenarios_list:
+        if scenario.total_number_of_conflicts == min_conflict_number:
+            best_scenarios_list.append(scenario)
+
+    period_list_from_test = algorithm1(study_group_list,number_of_periods)
+
+    # Create the EXCEL DOC
+    # Sorted by total number of conflicts
+    create_excel_file(best_scenarios_list, period_list_from_test)
 
 
 if __name__=="__main__":
